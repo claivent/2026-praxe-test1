@@ -30,4 +30,10 @@ public class UserController {
     public User createUser(@Valid @RequestBody User user) {
         return userService.createUser(user);
     }
+
+    @PostMapping("/{id}/delete")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteUser(@PathVariable Long id) {
+        userService.deleteUser(id);
+    }
 }
