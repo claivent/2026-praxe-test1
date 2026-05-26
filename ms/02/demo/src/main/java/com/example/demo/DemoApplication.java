@@ -4,7 +4,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import java.util.ArrayList;
 import java.util.List;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 @SpringBootApplication
 @RestController
@@ -30,6 +33,14 @@ public class DemoApplication {
     @GetMapping("/version")
     public String version() {
         return "1.0.2";
+    }
+
+    private final List<Users> userList = new ArrayList<>();
+
+    @PostMapping("/user/all")
+    public List<Users> addUser(@RequestBody Users user) {
+        userList.add(user);
+        return userList;
     }
 
     record Page(int page, String text) {}
