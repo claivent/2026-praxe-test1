@@ -1,23 +1,41 @@
 package com.example.demo;
+
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import java.util.ArrayList;
 import java.util.List;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 @SpringBootApplication
 @RestController
 public class DemoApplication {
+
     public static void main(String[] args) {
-      SpringApplication.run(DemoApplication.class, args);
+        SpringApplication.run(DemoApplication.class, args);
     }
+
+    @Bean
+    public CommandLineRunner initData(UserService userService) {
+        return args -> {
+            userService.createUser(newUser("Alice", "alice@example.com", 25));
+            userService.createUser(newUser("Bob", "bob@example.com", 30));
+        };
+    }
+
+    private User newUser(String name, String email, int age) {
+        User u = new User();
+        u.setName(name);
+        u.setEmail(email);
+        u.setAge(age);
+        return u;
+    }
+
     @GetMapping("/hello")
     public String hello(@RequestParam(value = "name", defaultValue = "World") String name) {
-      return String.format("Hello %s!", name);
+        return String.format("Hello %s!", name);
     }
 
     @GetMapping("/test")
@@ -33,14 +51,6 @@ public class DemoApplication {
     @GetMapping("/version")
     public String version() {
         return "1.0.2";
-    }
-
-    private final List<Users> userList = new ArrayList<>();
-
-    @PostMapping("/user/all")
-    public List<Users> addUser(@RequestBody Users user) {
-        userList.add(user);
-        return userList;
     }
 
     record Page(int page, String text) {}
@@ -107,6 +117,4 @@ public class DemoApplication {
             )
         );
     }
-
-
 }

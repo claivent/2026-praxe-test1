@@ -1,9 +1,1 @@
-spring:
-  application:
-    name: demo-novy-server
-
-server:
-  port: 8080
-
-
-
+# Konfigurace je v application.properties
