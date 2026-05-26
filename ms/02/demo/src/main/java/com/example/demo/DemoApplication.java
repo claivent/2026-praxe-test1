@@ -26,5 +26,10 @@ public class DemoApplication {
         return " funguje!";
     }
 
+    @GetMapping("/version")
+    public String version() {
+        return "1.0.2";
+    }
+
     
 }
