@@ -1,3 +1,4 @@
 spring:
   application:
-    name: demo
+    name: demo-novy-server
+  port: 8090
