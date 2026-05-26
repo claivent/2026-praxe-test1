@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Uživatelé</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --danger: #ef4444;
+            --success: #10b981;
+            --bg: #f1f5f9;
+            --card: #ffffff;
+            --text: #0f172a;
+            --subtext: #64748b;
+            --border: #e2e8f0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+            max-width: 430px;
+            margin: 0 auto;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* ── Header ── */
+        .header {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            padding: 52px 20px 28px;
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .header-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            opacity: 0.75;
+            text-transform: uppercase;
+        }
+
+        .header-title {
+            font-size: 30px;
+            font-weight: 800;
+            margin-top: 2px;
+            letter-spacing: -0.5px;
+        }
+
+        .header-count {
+            font-size: 13px;
+            opacity: 0.75;
+            margin-top: 4px;
+            font-weight: 500;
+        }
+
+        .header-refresh {
+            position: absolute;
+            top: 52px;
+            right: 20px;
+            background: rgba(255,255,255,0.15);
+            border: none;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .header-refresh:active { background: rgba(255,255,255,0.25); }
+
+        /* ── User list ── */
+        .user-list {
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding-bottom: 100px;
+        }
+
+        /* ── User card ── */
+        .user-card {
+            background: var(--card);
+            border-radius: 18px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 6px 20px rgba(0,0,0,0.04);
+            animation: slideIn 0.25s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 17px;
+            font-weight: 800;
+            flex-shrink: 0;
+            letter-spacing: -0.5px;
+        }
+
+        .user-info { flex: 1; min-width: 0; }
+
+        .user-name {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .user-email {
+            font-size: 12px;
+            color: var(--subtext);
+            margin-top: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .user-meta {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 5px;
+        }
+
+        .badge {
+            font-size: 11px;
+            font-weight: 600;
+            background: #f1f5f9;
+            color: var(--subtext);
+            padding: 2px 7px;
+            border-radius: 6px;
+        }
+
+        .delete-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            background: #fef2f2;
+            border: none;
+            color: var(--danger);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: background 0.15s, transform 0.1s;
+        }
+
+        .delete-btn:active { background: #fee2e2; transform: scale(0.92); }
+
+        /* ── Empty state ── */
+        .empty-state {
+            text-align: center;
+            padding: 64px 24px;
+        }
+
+        .empty-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-radius: 24px;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .empty-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 6px;
+        }
+
+        .empty-desc { font-size: 14px; color: var(--subtext); line-height: 1.5; }
+
+        /* ── FAB ── */
+        .fab {
+            position: fixed;
+            bottom: 30px;
+            right: max(20px, calc(50% - 195px));
+            width: 58px;
+            height: 58px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border: none;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 6px 24px rgba(99,102,241,0.45);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+            z-index: 20;
+        }
+
+        .fab:active { transform: scale(0.93); box-shadow: 0 3px 12px rgba(99,102,241,0.4); }
+
+        /* ── Overlay ── */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15,23,42,0.45);
+            z-index: 30;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            backdrop-filter: blur(3px);
+        }
+
+        .overlay.active { opacity: 1; pointer-events: all; }
+
+        /* ── Bottom sheet ── */
+        .sheet {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%) translateY(100%);
+            width: 100%;
+            max-width: 430px;
+            background: var(--card);
+            border-radius: 28px 28px 0 0;
+            padding: 0 20px 40px;
+            z-index: 40;
+            transition: transform 0.38s cubic-bezier(0.32,0.72,0,1);
+        }
+
+        .sheet.active { transform: translateX(-50%) translateY(0); }
+
+        .sheet-handle {
+            width: 40px;
+            height: 4px;
+            background: var(--border);
+            border-radius: 2px;
+            margin: 12px auto 20px;
+        }
+
+        .sheet-title {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--text);
+            margin-bottom: 22px;
+            letter-spacing: -0.3px;
+        }
+
+        /* ── Form ── */
+        .form-group { margin-bottom: 14px; }
+
+        .form-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--subtext);
+            margin-bottom: 6px;
+            display: block;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1.5px solid var(--border);
+            border-radius: 14px;
+            font-size: 16px;
+            color: var(--text);
+            background: #f8fafc;
+            outline: none;
+            transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+            font-family: inherit;
+        }
+
+        .form-input:focus {
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(99,102,241,0.1);
+        }
+
+        .form-input.error { border-color: var(--danger); box-shadow: 0 0 0 4px rgba(239,68,68,0.1); }
+
+        .form-error { font-size: 12px; color: var(--danger); margin-top: 5px; font-weight: 500; }
+
+        .submit-btn {
+            width: 100%;
+            padding: 17px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 6px;
+            transition: opacity 0.2s, transform 0.1s;
+            font-family: inherit;
+            letter-spacing: 0.01em;
+        }
+
+        .submit-btn:active { opacity: 0.9; transform: scale(0.99); }
+        .submit-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+        /* ── Toast ── */
+        .toast {
+            position: fixed;
+            top: 16px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: #1e293b;
+            color: white;
+            padding: 13px 22px;
+            border-radius: 14px;
+            font-size: 14px;
+            font-weight: 600;
+            z-index: 100;
+            transition: transform 0.3s cubic-bezier(0.32,0.72,0,1);
+            white-space: nowrap;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+
+        .toast.success { background: var(--success); }
+        .toast.error   { background: var(--danger); }
+        .toast.show    { transform: translateX(-50%) translateY(0); }
+
+        /* ── Spinner ── */
+        .loading { display: flex; justify-content: center; padding: 50px; }
+
+        .spinner {
+            width: 34px;
+            height: 34px;
+            border: 3px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.75s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── Error state ── */
+        .error-state {
+            text-align: center;
+            padding: 48px 24px;
+        }
+
+        .error-state .error-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .retry-btn {
+            margin-top: 16px;
+            padding: 12px 24px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+    <div class="header-label">Správa uživatelů</div>
+    <div class="header-title">Uživatelé</div>
+    <div class="header-count" id="count">Načítám...</div>
+    <button class="header-refresh" id="refreshBtn" title="Obnovit">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M23 4v6h-6"/><path d="M1 20v-6h6"/>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+        </svg>
+    </button>
+</div>
+
+<!-- User list -->
+<div class="user-list" id="userList">
+    <div class="loading"><div class="spinner"></div></div>
+</div>
+
+<!-- FAB -->
+<button class="fab" id="fabBtn" title="Přidat uživatele">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+    </svg>
+</button>
+
+<!-- Overlay -->
+<div class="overlay" id="overlay"></div>
+
+<!-- Bottom sheet -->
+<div class="sheet" id="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Nový uživatel</div>
+    <form id="addForm" novalidate>
+        <div class="form-group">
+            <label class="form-label">Jméno</label>
+            <input type="text" class="form-input" id="nameInput" placeholder="Jan Novák" autocomplete="off">
+            <div class="form-error" id="nameError"></div>
+        </div>
+        <div class="form-group">
+            <label class="form-label">E-mail</label>
+            <input type="email" class="form-input" id="emailInput" placeholder="jan@example.com" autocomplete="off">
+            <div class="form-error" id="emailError"></div>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Věk</label>
+            <input type="number" class="form-input" id="ageInput" placeholder="25" min="0" max="150">
+        </div>
+        <button type="submit" class="submit-btn" id="submitBtn">Přidat uživatele</button>
+    </form>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+    const API = 'http://localhost:9100/api/users';
+
+    const userListEl  = document.getElementById('userList');
+    const countEl     = document.getElementById('count');
+    const fabBtn      = document.getElementById('fabBtn');
+    const refreshBtn  = document.getElementById('refreshBtn');
+    const overlay     = document.getElementById('overlay');
+    const sheet       = document.getElementById('sheet');
+    const addForm     = document.getElementById('addForm');
+    const nameInput   = document.getElementById('nameInput');
+    const emailInput  = document.getElementById('emailInput');
+    const ageInput    = document.getElementById('ageInput');
+    const submitBtn   = document.getElementById('submitBtn');
+    const toastEl     = document.getElementById('toast');
+    const nameError   = document.getElementById('nameError');
+    const emailError  = document.getElementById('emailError');
+
+    let users = [];
+    let toastTimer;
+
+    // Toast
+    function showToast(msg, type = '') {
+        toastEl.textContent = msg;
+        toastEl.className = `toast show ${type}`;
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => { toastEl.className = 'toast'; }, 2800);
+    }
+
+    // Sheet
+    function openSheet() {
+        overlay.classList.add('active');
+        sheet.classList.add('active');
+        setTimeout(() => nameInput.focus(), 380);
+    }
+
+    function closeSheet() {
+        overlay.classList.remove('active');
+        sheet.classList.remove('active');
+        addForm.reset();
+        clearFieldError(nameInput, nameError);
+        clearFieldError(emailInput, emailError);
+    }
+
+    function clearFieldError(input, errEl) {
+        input.classList.remove('error');
+        errEl.textContent = '';
+    }
+
+    fabBtn.addEventListener('click', openSheet);
+    overlay.addEventListener('click', closeSheet);
+    refreshBtn.addEventListener('click', fetchUsers);
+
+    // Render
+    function initials(name) {
+        return name.trim().split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase() || '?';
+    }
+
+    function render() {
+        const n = users.length;
+        countEl.textContent = n === 0 ? 'Žádní uživatelé' : n === 1 ? '1 uživatel' : `${n} uživatelů`;
+
+        if (n === 0) {
+            userListEl.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                            <circle cx="9" cy="7" r="4"/>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                        </svg>
+                    </div>
+                    <div class="empty-title">Žádní uživatelé</div>
+                    <div class="empty-desc">Přidej prvního uživatele<br>klepnutím na tlačítko +</div>
+                </div>`;
+            return;
+        }
+
+        userListEl.innerHTML = users.map(u => `
+            <div class="user-card" id="card-${u.id}">
+                <div class="avatar">${initials(u.name)}</div>
+                <div class="user-info">
+                    <div class="user-name">${escHtml(u.name)}</div>
+                    <div class="user-email">${escHtml(u.email)}</div>
+                    <div class="user-meta">
+                        <span class="badge">#${u.id}</span>
+                        ${u.age ? `<span class="badge">${u.age} let</span>` : ''}
+                    </div>
+                </div>
+                <button class="delete-btn" onclick="deleteUser(${u.id})" title="Smazat uživatele">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="3 6 5 6 21 6"/>
+                        <path d="M19 6l-1 14H6L5 6"/>
+                        <path d="M10 11v6"/><path d="M14 11v6"/>
+                        <path d="M9 6V4h6v2"/>
+                    </svg>
+                </button>
+            </div>`).join('');
+    }
+
+    function escHtml(str) {
+        return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // Fetch
+    async function fetchUsers() {
+        userListEl.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+        try {
+            const res = await fetch(API);
+            if (!res.ok) throw new Error();
+            users = await res.json();
+            render();
+        } catch {
+            countEl.textContent = 'Chyba připojení';
+            userListEl.innerHTML = `
+                <div class="error-state">
+                    <div class="error-icon">⚠️</div>
+                    <div class="empty-title">Nelze se připojit</div>
+                    <div class="empty-desc">Zkontroluj, zda běží server<br>na <strong>localhost:9100</strong></div>
+                    <button class="retry-btn" onclick="fetchUsers()">Zkusit znovu</button>
+                </div>`;
+        }
+    }
+
+    // Add user
+    addForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        clearFieldError(nameInput, nameError);
+        clearFieldError(emailInput, emailError);
+
+        const name  = nameInput.value.trim();
+        const email = emailInput.value.trim();
+        const age   = parseInt(ageInput.value) || 0;
+
+        let valid = true;
+        if (!name)  { nameError.textContent  = 'Jméno je povinné';  nameInput.classList.add('error');  valid = false; }
+        if (!email) { emailError.textContent = 'E-mail je povinný'; emailInput.classList.add('error'); valid = false; }
+        if (!valid) return;
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Přidávám…';
+
+        try {
+            const res = await fetch(API, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, age })
+            });
+
+            if (res.status === 400) {
+                const data = await res.json();
+                if (data.errors?.name)  { nameError.textContent  = data.errors.name;  nameInput.classList.add('error'); }
+                if (data.errors?.email) { emailError.textContent = data.errors.email; emailInput.classList.add('error'); }
+                return;
+            }
+
+            if (!res.ok) throw new Error();
+
+            await fetchUsers();
+            closeSheet();
+            showToast('Uživatel přidán ✓', 'success');
+        } catch {
+            showToast('Nepodařilo se přidat uživatele', 'error');
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Přidat uživatele';
+        }
+    });
+
+    // Delete user
+    async function deleteUser(id) {
+        const card = document.getElementById('card-' + id);
+        if (card) { card.style.opacity = '0.4'; card.style.pointerEvents = 'none'; }
+
+        try {
+            const res = await fetch(`${API}/${id}/delete`, { method: 'POST' });
+            if (!res.ok) throw new Error();
+            await fetchUsers();
+            showToast('Uživatel smazán', 'success');
+        } catch {
+            showToast('Nepodařilo se smazat uživatele', 'error');
+            if (card) { card.style.opacity = '1'; card.style.pointerEvents = ''; }
+        }
+    }
+
+    fetchUsers();
+</script>
+</body>
+</html>
