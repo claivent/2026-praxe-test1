@@ -1,0 +1,5 @@
+// Styles are in global styles.scss via host encapsulation passthrough
+// Component-specific overrides only
+:host {
+  display: block;
+}
